@@ -157,7 +157,7 @@ void AStar::Generator::findPath(CoordinateList& path_, Vec2i source_, Vec2i targ
     //CoordinateList path;
     while (current != nullptr) {
         path_.push_back(current->coordinates);
-        grid_map[current->coordinates.x][current->coordinates.y] = "*";
+        grid_map[current->coordinates.x][current->coordinates.y] = "*"; 
         current = current->parent;
     }
 
@@ -167,6 +167,7 @@ void AStar::Generator::findPath(CoordinateList& path_, Vec2i source_, Vec2i targ
 
 void AStar::Generator::changeRealPath(const CoordinateList& path_, CoordinateList& robot_path_)
 {
+    
     //To do: convert grid path to real robot path
 }
 
