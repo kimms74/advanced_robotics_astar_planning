@@ -6,6 +6,9 @@
 #include <math.h>
 #include <algorithm>
 #include <iostream>
+
+
+
 namespace AStar
 {
     struct Vec2i
@@ -52,6 +55,7 @@ namespace AStar
 
     public:
         Generator();
+        void Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2, Obs2i& obs3);
         void setWorldSize(Vec2i worldSize_, int grid_multiplier_);
         void setDiagonalMovement(bool enable_);
         void setHeuristic(HeuristicFunction heuristic_);
@@ -61,6 +65,7 @@ namespace AStar
         void clearCollisions();
         void printMap();
         void changeRealPath(const CoordinateList& path_, CoordinateListf& real_path_);
+        double distance(double x1, double y1, double x2, double y2);
 
 
     private:

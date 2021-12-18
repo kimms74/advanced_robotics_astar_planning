@@ -1,6 +1,61 @@
-#include "Astar.h"
+#include "../include/Astar.h"
 
 using namespace std::placeholders;
+
+double AStar::Generator::distance(double x1, double y1, double x2, double y2) {
+    return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+}
+
+void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2, Obs2i& obs3 ) {
+    std::cout << "before erase : " << path.size() << std::endl;
+    double r1, r2, r3;
+    r1 = obs1.d / 2;
+    r2 = obs2.d / 2;
+    r3 = obs3.d / 2;
+
+    double r_x, r_y, r_0;
+    double x_i, y_i, x_m, y_m, x_f, y_f;
+    double d_m, d_f;
+
+    //std::cout << distance(1, 2, 3, 4);
+    std::cout << "path size " << path.size() << std::endl;
+    for (int i = 0; i < path.size(); i++) {
+        r_x = obs1.x;
+        r_y = obs1.y;
+        r_0 = r1;
+        x_i = path[i].x;
+        y_i = path[i].y;
+
+        // nearest obstacle select
+        if (distance(r_x, r_y, x_i, y_i) > distance(obs2.x, obs2.y, x_i, y_i)) {
+            r_x = obs2.x;
+            r_y = obs2.y;
+            r_0 = r2;
+        }
+        else if (distance(r_x, r_y, x_i, y_i) > distance(obs3.x, obs3.y, x_i, y_i)) {
+            r_x = obs3.x;
+            r_y = obs3.y;
+            r_0 = r3;
+        }
+
+        // collision check of middle point
+        if (i == path.size() - 1) {
+            continue;
+        }
+        x_m = (path[i].x + path[i + 1].x) / 2;
+        y_m = (path[i].y + path[i + 1].y) / 2;
+        d_m = distance(r_x, r_y, x_m, y_m);
+        std::cout << "d_m : " << d_m << "r_0" << r_0 << std::endl;
+        if (d_m >= r_0) {
+            std::cout << "iter : " << i << std::endl;
+            grid_map[x_i + 1][y_i + 1] = "0";
+            path.erase(path.begin() + i + 1);
+            i--;
+        }
+    }
+
+    std::cout << "after erase : " << path.size() << std::endl;
+}
 
 bool AStar::Vec2i::operator == (const Vec2i& coordinates_)
 {
