@@ -60,12 +60,14 @@ namespace AStar
         void setDiagonalMovement(bool enable_);
         void setHeuristic(HeuristicFunction heuristic_);
         void findPath(CoordinateList& path_, Vec2i source_, Vec2i target_);
-        void addCollision(AStar::Obs2i obs1_, AStar::Obs2i obs2_, AStar::Obs2i obs3_, double safety_value_);
+        void addCollision(AStar::Obs2i obs1_, AStar::Obs2i obs2_, AStar::Obs2i obs3_);
         void removeCollision(Vec2i coordinates_);
         void clearCollisions();
         void printMap();
         void changeRealPath(const CoordinateList& path_, CoordinateListf& real_path_);
+        double PointLineDistance(double x1, double y1, double x2, double y2, double rx, double ry);
         double distance(double x1, double y1, double x2, double y2);
+
 
 
     private:

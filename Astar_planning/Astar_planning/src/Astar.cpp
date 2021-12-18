@@ -2,57 +2,127 @@
 
 using namespace std::placeholders;
 
+double AStar::Generator::PointLineDistance(double x1, double y1, double x2, double y2, double rx, double ry) {
+    double a = (y2 - y1);
+    double b = -(x2 - x1);
+    double c = ((x2 - x1) * y2 - (y2 - y1) * x2) ;
+
+    return abs(a * rx + b * ry + c) / (sqrt(pow(a, 2) + pow(b, 2)));
+}
+
 double AStar::Generator::distance(double x1, double y1, double x2, double y2) {
     return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
 }
 
 void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2, Obs2i& obs3 ) {
     std::cout << "before erase : " << path.size() << std::endl;
-    double r1, r2, r3;
-    r1 = obs1.d / 2;
-    r2 = obs2.d / 2;
-    r3 = obs3.d / 2;
+    //double r1, r2, r3;
+    //r1 = obs1.d / 2;
+    //r2 = obs2.d / 2;
+    //r3 = obs3.d / 2;
 
+    double a, b, c;
     double r_x, r_y, r_0;
-    double x_i, y_i, x_m, y_m, x_f, y_f;
-    double d_m, d_f;
+    double x_i, y_i,  x_f, y_f;
+    std::vector<double> d_col(3);
+    std::vector<Obs2i> obss;
+    obss.push_back(obs1);
+    obss.push_back(obs2);
+    obss.push_back(obs3);
+    int target_x, target_y;
+    target_x = path.back().x;
+    target_y = path.back().y;
 
-    //std::cout << distance(1, 2, 3, 4);
-    std::cout << "path size " << path.size() << std::endl;
     for (int i = 0; i < path.size(); i++) {
-        r_x = obs1.x;
-        r_y = obs1.y;
-        r_0 = r1;
-        x_i = path[i].x;
-        y_i = path[i].y;
-
-        // nearest obstacle select
-        if (distance(r_x, r_y, x_i, y_i) > distance(obs2.x, obs2.y, x_i, y_i)) {
-            r_x = obs2.x;
-            r_y = obs2.y;
-            r_0 = r2;
+        if (i == 0) {
+            grid_map[path[i].x][path[i].y] = "@";
         }
-        else if (distance(r_x, r_y, x_i, y_i) > distance(obs3.x, obs3.y, x_i, y_i)) {
-            r_x = obs3.x;
-            r_y = obs3.y;
-            r_0 = r3;
-        }
-
-        // collision check of middle point
         if (i == path.size() - 1) {
             continue;
         }
-        x_m = (path[i].x + path[i + 1].x) / 2;
-        y_m = (path[i].y + path[i + 1].y) / 2;
-        d_m = distance(r_x, r_y, x_m, y_m);
-        std::cout << "d_m : " << d_m << "r_0" << r_0 << std::endl;
-        if (d_m >= r_0) {
-            std::cout << "iter : " << i << std::endl;
-            grid_map[x_i + 1][y_i + 1] = "0";
-            path.erase(path.begin() + i + 1);
-            i--;
+
+        x_i = path[i].x;
+        y_i = path[i].y;
+        x_f = path[i + 1].x;
+        y_f = path[i + 1].y;
+        std::cout << path[i].x << " " << path[i].y << std::endl;
+        for (int j = 0; j < obss.size(); j++)
+        {
+            r_x = obss[j].x;
+            r_y = obss[j].y;
+            r_0 = (obss[j].d / 2.0);
+
+            // collision check 
+            //std::cout << x_i << " " << y_i << " " << x_f << " " << y_f << " " << r_x << " " << r_y << std::endl;
+            d_col[j] = PointLineDistance(x_i, y_i, x_f, y_f, r_x, r_y);
+            std::cout << "d_col" << j << ": " << d_col[j] << ", r_0 : " << r_0 << std::endl;
+
+            if (d_col[j] < r_0) {
+                if ((sqrt(pow(distance(x_i, y_i, r_x, r_y), 2) - pow(d_col[j], 2)) > distance(x_i, y_i, x_f, y_f) || (sqrt(pow(distance(x_f, y_f, r_x, r_y), 2) - pow(d_col[j], 2)) > distance(x_i, y_i, x_f, y_f)))) {
+                    //std::cout << "fakeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" << std::endl;
+
+                    if (distance(x_f, y_f, r_x, r_y) > distance(x_i, y_i, r_x, r_y)) {
+                        d_col[j] = distance(x_i, y_i, r_x, r_y);
+                    }
+                    else {
+                        d_col[j] = distance(x_f, y_f, r_x, r_y);
+                    }
+                }
+            }
         }
+            if (d_col[0] > (obss[0].d / 2.0) && d_col[1] > (obss[1].d / 2.0) && d_col[2] > (obss[2].d / 2.0)) {
+                //std::cout << "iter : " << i << std::endl;
+                grid_map[path[i + 1].x][path[i + 1].y] = "0";
+                path.erase(path.begin() + i + 1);
+                i--;
+            }
     }
+    grid_map[target_x][target_y] = "@";
+
+    //r_x = obs1.x;
+    //r_y = obs1.y;
+    //r_0 = r1;
+    //for (int i = 0; i < path.size(); i++) {
+    //    if (i == path.size() - 1) {
+    //        continue;
+    //    }
+    //    x_i = path[i].x;
+    //    y_i = path[i].y;
+    //    x_f = path[i + 1].x;
+    //    y_f = path[i + 1].y;
+
+    //    // nearest obstacle select
+    //    if (distance(x_f, y_f, r_x, r_y) > distance(x_f, y_f, obs2.x, obs2.y)) {
+    //        r_x = obs2.x;
+    //        r_y = obs2.y;
+    //        r_0 = r2;
+    //    }
+    //    else if (distance(x_f, y_f, r_x, r_y) > distance(x_f, y_f, obs3.x, obs3.y)) {
+    //        r_x = obs3.x;
+    //        r_y = obs3.y;
+    //        r_0 = r3;
+    //    }
+    //    double a, b, c, cos_c;
+    //    a = distance(x_i, y_i, x_f, y_f);
+    //    b = distance(x_f, y_f, r_x, r_y);
+    //    c = distance(r_x, r_y, x_i, y_i);
+    //    cos_c = (pow(c, 2) - pow(a, 2) - pow(b, 2)) / (-2 * a * b);
+
+    //    std::cout << "r_0 : " << r_0 << "\t PLD : " << PointLineDistance(x_i, y_i, x_f, y_f, r_x, r_y) << std::endl;
+
+    //    if (cos_c <= 0) {
+    //        std::cout << "iter : " << i << std::endl;
+    //        grid_map[path[i + 1].x][path[i + 1].y] = "0";
+    //        path.erase(path.begin() + i + 1);
+    //        i--;
+    //    }
+    //    else if (r_0 < PointLineDistance(x_i, y_i, x_f, y_f, r_x, r_y)) {
+    //        std::cout << "iter : " << i << std::endl;
+    //        grid_map[path[i + 1].x][path[i + 1].y] = "0";
+    //        path.erase(path.begin() + i + 1);
+    //        i--;
+    //    }
+    //}
 
     std::cout << "after erase : " << path.size() << std::endl;
 }
@@ -89,9 +159,11 @@ AStar::Generator::Generator()
     setDiagonalMovement(false);
     setHeuristic(&Heuristic::manhattan);
     direction = {
+        //{ 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 },
+        //{ -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 },
+        //{ -1, -2 }, { 1, 2 }, { -1, 2 }, { 1, -2 }
         { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 },
-        { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 },
-        { -1, -2 }, { 1, 2 }, { -1, 2 }, { 1, -2 }
+        { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 }
         
     };
 }
@@ -107,7 +179,8 @@ void AStar::Generator::setWorldSize(Vec2i worldSize_, int grid_multiplier_)
 
 void AStar::Generator::setDiagonalMovement(bool enable_)
 {
-    directions = (enable_ ? 12 : 4);
+    //directions = (enable_ ? 12 : 4);
+    directions = (enable_ ? 8 : 4);
 }
 
 void AStar::Generator::setHeuristic(HeuristicFunction heuristic_)
@@ -115,7 +188,7 @@ void AStar::Generator::setHeuristic(HeuristicFunction heuristic_)
     heuristic = std::bind(heuristic_, _1, _2);
 }
 
-void AStar::Generator::addCollision(AStar::Obs2i obs1_, AStar::Obs2i obs2_, AStar::Obs2i obs3_, double safety_value_)
+void AStar::Generator::addCollision(AStar::Obs2i obs1_, AStar::Obs2i obs2_, AStar::Obs2i obs3_)
 {
     for (int i = 0; i < worldSize.x; ++i)
     {
@@ -124,7 +197,7 @@ void AStar::Generator::addCollision(AStar::Obs2i obs1_, AStar::Obs2i obs2_, ASta
             int distance_1 = sqrt(pow(i / double(grid_multiplier) - obs1_.x, 2) + pow(j / double(grid_multiplier) - obs1_.y, 2));
             int distance_2 = sqrt(pow(i / double(grid_multiplier) - obs2_.x, 2) + pow(j / double(grid_multiplier) - obs2_.y, 2));
             int distance_3 = sqrt(pow(i / double(grid_multiplier) - obs3_.x, 2) + pow(j / double(grid_multiplier) - obs3_.y, 2));
-            if (distance_1 <= (obs1_.d / 2 + safety_value_) || distance_2 <= (obs2_.d / 2 + safety_value_) || distance_3 <= (obs3_.d / 2 + safety_value_))
+            if (distance_1 <= (obs1_.d / 2) || distance_2 <= (obs2_.d / 2) || distance_3 <= (obs3_.d / 2))
             {
                 walls.push_back({ i,j });
                 grid_map[i][j] = "1";
@@ -166,7 +239,7 @@ void AStar::Generator::findPath(CoordinateList& path_, Vec2i source_, Vec2i targ
     //Vec2i start{ source_.x * grid_multiplier - 1, source_.y * grid_multiplier - 1 }; //change!!
     Vec2i start{ source_.x * grid_multiplier, source_.y * grid_multiplier }; //change!!
     Vec2i finish{ target_.x * grid_multiplier, target_.y * grid_multiplier };
-    grid_map[start.x][start.y] = "*";
+    grid_map[start.x][start.y] = "@";
 
     Node* current = nullptr;
     NodeSet openSet, closedSet;
@@ -219,7 +292,7 @@ void AStar::Generator::findPath(CoordinateList& path_, Vec2i source_, Vec2i targ
     //CoordinateList path;
     while (current != nullptr) {
         path_.push_back(current->coordinates);
-        grid_map[current->coordinates.x][current->coordinates.y] = "*"; 
+        grid_map[current->coordinates.x][current->coordinates.y] = "@"; 
         current = current->parent;
     }
 

@@ -18,7 +18,7 @@ struct Position
 
 int main()
 {
-    int scale = 2;
+    int scale = 3;
     int grid_multiplier = 1;    //make grid size up
     const int height = 20 * scale;
     const int width = 40 * scale;
@@ -26,41 +26,65 @@ int main()
 
     //To do: change input position to real input position
     double safety_value = 2;
-    AStar::Obs2i obs1{ 5 * scale,10 * scale,8 * scale }; //real position & size (cm)
-    AStar::Obs2i obs2{ 17 * scale,20 * scale,5 * scale };
-    AStar::Obs2i obs3{ 10 * scale,32 * scale,2 * scale };
+    AStar::Obs2i obs1{ 8 * scale,10 * scale,(8+ safety_value) * scale }; //real position & size (cm)
+    AStar::Obs2i obs2{ 10 * scale,20 * scale,(7+ safety_value) * scale };
+    AStar::Obs2i obs3{ 7 * scale,32 * scale,(5+ safety_value) * scale };
 
-    AStar::Vec2i start{ 2 * scale,2 * scale };
-    AStar::Vec2i target1{ height - 2 * scale - 1,width - 2 * scale - 1 };
-    AStar::Vec2i target2{ 2 * scale, width - 2 * scale - 1 };
-    AStar::Vec2i target3{ height - 2 * scale - 1,2 * scale };
+    AStar::Vec2i start{ 2 * scale, width - 2 * scale - 1 };
+    AStar::Vec2i target1{ height - 2 * scale - 1,2 * scale };
+    AStar::Vec2i target2{ 2 * scale,2 * scale }; 
+    AStar::Vec2i target3{ height - 2 * scale - 1,width - 2 * scale - 1 }; 
 
     AStar::Generator generator;
     generator.setWorldSize({ height, width }, grid_multiplier);
     generator.setHeuristic(AStar::Heuristic::euclidean);
     generator.setDiagonalMovement(true);
-    generator.addCollision(obs1, obs2, obs3, safety_value);
+    generator.addCollision(obs1, obs2, obs3);
 
     std::cout << "Generate path ... \n";
-    AStar::CoordinateList path;
     //To do: make real input position to grid position?
-    generator.findPath(path, target2, target3);
-    int path_size3 = path.size();
-    generator.findPath(path, target1, target2);
-    int path_size2 = path.size() - path_size3;
-    generator.findPath(path, start, target1);
-    int path_size1 = path.size() - path_size2 - path_size3;
+    AStar::CoordinateList path1, path2, path3, path;
 
-    std::reverse(path.begin(), path.end());
-
-    generator.Simplepath(path, obs1, obs2, obs3);
+    generator.findPath(path3, target2, target3);
+    int path_size3 = path3.size();
+    std::reverse(path3.begin(), path3.end());
+    generator.Simplepath(path3, obs1, obs2, obs3);
 
 
-   
+    generator.findPath(path2, target1, target2);
+    int path_size2 = path2.size();
+    std::reverse(path2.begin(), path2.end());
+    generator.Simplepath(path2, obs1, obs2, obs3);
 
-   /* for (auto& coordinate : path) {
+
+    generator.findPath(path1, start, target1);
+    int path_size1 = path1.size();
+    std::reverse(path1.begin(), path1.end());
+    generator.Simplepath(path1, obs1, obs2, obs3);
+
+
+    path.insert(path.end(), path1.begin(), path1.end());
+    path.insert(path.end(), path2.begin(), path2.end());
+    path.insert(path.end(), path3.begin(), path3.end());
+    path.push_back(target3);
+
+    //AStar::CoordinateList path;
+
+    //generator.findPath(path, target2, target3);
+    //int path_size3 = path.size();
+    //generator.findPath(path, target1, target2);
+    //int path_size2 = path.size() - path_size3;
+    //generator.findPath(path, start, target1);
+    //int path_size1 = path.size() - path_size2 - path_size3;
+
+    //std::reverse(path.begin(), path.end());
+
+    //generator.Simplepath(path, obs1, obs2, obs3);
+
+    std::cout << "  " << std::endl;
+    for (auto& coordinate : path) {
         std::cout << coordinate.x << " " << coordinate.y << "\n";
-    }*/
+    }
 
     generator.printMap();
 
