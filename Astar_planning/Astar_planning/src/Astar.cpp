@@ -15,7 +15,7 @@ double AStar::Generator::distance(double x1, double y1, double x2, double y2) {
 }
 
 void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2, Obs2i& obs3 ) {
-    std::cout << "before erase : " << path.size() << std::endl;
+    //std::cout << "before erase : " << path.size() << std::endl;
     //double r1, r2, r3;
     //r1 = obs1.d / 2;
     //r2 = obs2.d / 2;
@@ -45,7 +45,7 @@ void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2
         y_i = path[i].y;
         x_f = path[i + 1].x;
         y_f = path[i + 1].y;
-        std::cout << path[i].x << " " << path[i].y << std::endl;
+        //std::cout << path[i].x << " " << path[i].y << std::endl;
         for (int j = 0; j < obss.size(); j++)
         {
             r_x = obss[j].x;
@@ -55,8 +55,8 @@ void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2
             // collision check 
             //std::cout << x_i << " " << y_i << " " << x_f << " " << y_f << " " << r_x << " " << r_y << std::endl;
             d_col[j] = PointLineDistance(x_i, y_i, x_f, y_f, r_x, r_y);
-            std::cout << "d_col" << j << ": " << d_col[j] << ", r_0 : " << r_0 << std::endl;
-
+            //std::cout << "d_col" << j << ": " << d_col[j] << ", r_0 : " << r_0 << std::endl;
+            
             if (d_col[j] < r_0) {
                 if ((sqrt(pow(distance(x_i, y_i, r_x, r_y), 2) - pow(d_col[j], 2)) > distance(x_i, y_i, x_f, y_f) || (sqrt(pow(distance(x_f, y_f, r_x, r_y), 2) - pow(d_col[j], 2)) > distance(x_i, y_i, x_f, y_f)))) {
                     //std::cout << "fakeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" << std::endl;
@@ -70,7 +70,9 @@ void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2
                 }
             }
         }
-            if (d_col[0] > (obss[0].d / 2.0) && d_col[1] > (obss[1].d / 2.0) && d_col[2] > (obss[2].d / 2.0)) {
+        //change radius 2 to another value
+        double radius_gain = 2;
+            if (d_col[0] > (obss[0].d / radius_gain) && d_col[1] > (obss[1].d / radius_gain) && d_col[2] > (obss[2].d / radius_gain)) {
                 //std::cout << "iter : " << i << std::endl;
                 grid_map[path[i + 1].x][path[i + 1].y] = "0";
                 path.erase(path.begin() + i + 1);
@@ -124,7 +126,7 @@ void AStar::Generator::Simplepath(CoordinateList& path, Obs2i& obs1, Obs2i& obs2
     //    }
     //}
 
-    std::cout << "after erase : " << path.size() << std::endl;
+    //std::cout << "after erase : " << path.size() << std::endl;
 }
 
 bool AStar::Vec2i::operator == (const Vec2i& coordinates_)
