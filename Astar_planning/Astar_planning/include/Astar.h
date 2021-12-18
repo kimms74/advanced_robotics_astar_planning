@@ -15,6 +15,13 @@ namespace AStar
         bool operator == (const Vec2i& coordinates_);
     };
 
+    struct Vec2f
+    {
+        double x, y;
+
+        bool operator == (const Vec2f& coordinates_);
+    };
+
     struct Obs2i
     {
         double x, y, d; //x,y: coordinate, s: size
@@ -23,6 +30,7 @@ namespace AStar
     using uint = unsigned int;
     using HeuristicFunction = std::function<uint(Vec2i, Vec2i)>;
     using CoordinateList = std::vector<Vec2i>;
+    using CoordinateListf = std::vector<Vec2f>;
 
     struct Node
     {
@@ -52,7 +60,7 @@ namespace AStar
         void removeCollision(Vec2i coordinates_);
         void clearCollisions();
         void printMap();
-        void changeRealPath(const CoordinateList& path_, CoordinateList& real_path_);
+        void changeRealPath(const CoordinateList& path_, CoordinateListf& real_path_);
 
 
     private:
