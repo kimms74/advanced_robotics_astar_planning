@@ -7,6 +7,11 @@ bool AStar::Vec2i::operator == (const Vec2i& coordinates_)
     return (x == coordinates_.x && y == coordinates_.y);
 }
 
+bool AStar::Vec2f::operator == (const Vec2f& coordinates_)
+{
+    return (x == coordinates_.x && y == coordinates_.y);
+}
+
 AStar::Vec2i operator + (const AStar::Vec2i& left_, const AStar::Vec2i& right_)
 {
     return{ left_.x + right_.x, left_.y + right_.y };
@@ -30,7 +35,9 @@ AStar::Generator::Generator()
     setHeuristic(&Heuristic::manhattan);
     direction = {
         { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 },
-        { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 }
+        { -1, -1 }, { 1, 1 }, { -1, 1 }, { 1, -1 },
+        { -1, -2 }, { 1, 2 }, { -1, 2 }, { 1, -2 }
+        
     };
 }
 
@@ -45,7 +52,7 @@ void AStar::Generator::setWorldSize(Vec2i worldSize_, int grid_multiplier_)
 
 void AStar::Generator::setDiagonalMovement(bool enable_)
 {
-    directions = (enable_ ? 8 : 4);
+    directions = (enable_ ? 12 : 4);
 }
 
 void AStar::Generator::setHeuristic(HeuristicFunction heuristic_)
@@ -165,9 +172,14 @@ void AStar::Generator::findPath(CoordinateList& path_, Vec2i source_, Vec2i targ
     releaseNodes(closedSet);
 }
 
-void AStar::Generator::changeRealPath(const CoordinateList& path_, CoordinateList& robot_path_)
+void AStar::Generator::changeRealPath(const CoordinateList& path_, CoordinateListf& robot_path_)
 {
-    
+    for (int i = 0; i < path_.size(); i++) {
+        Vec2f new_path_;
+        new_path_.x = -0.001 * path_[i].x + 0.1;
+        new_path_.y = 0.001 * path_[i].y - 0.2;
+        robot_path_.push_back(new_path_);
+    }
     //To do: convert grid path to real robot path
 }
 
