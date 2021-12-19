@@ -16,9 +16,10 @@ int main()
     AStar::Obs2i obs3{ 10 * scale,32 * scale,2 * scale };
 
     AStar::Vec2i start{ 2 * scale,2 * scale };
-    AStar::Vec2i target1{ height - 2 * scale - 1,width - 2 * scale - 1 };
-    AStar::Vec2i target2{ 2 * scale, width - 2 * scale - 1 };
-    AStar::Vec2i target3{ height - 2 * scale - 1,2 * scale };
+
+    AStar::Vec2i target1{ height - 2 * scale, width - 2 * scale };
+    AStar::Vec2i target2{ 2 * scale, width - 2 * scale };
+    AStar::Vec2i target3{ height - 2 * scale,2 * scale };
 
     AStar::Generator generator;
     generator.setWorldSize({ height, width }, grid_multiplier);
@@ -46,22 +47,12 @@ int main()
 
 
     AStar::CoordinateListf robot_path;
-    std::cout << path[0].x << " " << path[0].y << " " << path_size1 << "\n";
-    std::cout << path[1].x << " " << path[1].y << " " << path_size1 << "\n";
-    //std::cout << path1[0].x << " " << path1[0].y << " " << path1.size() << "\n";
-
-    std::cout << path[path_size1-1].x << " " << path[path_size1-1].y << " " << path_size2 << "\n";
-    std::cout << path[path_size1].x << " " << path[path_size1].y << " " << path_size2 << "\n";
-    std::cout << path[path_size1+1].x << " " << path[path_size1+1].y << " " << path_size2 << "\n";
-    //std::cout << path2[0].x << " " << path2[0].y << " " << path2.size() << "\n";
-
-    std::cout << path[path_size1 + path_size2+1].x << " " << path[path_size1 + path_size2+1].y << " " << path_size3 << "\n";
-    //std::cout << path3[0].x << " " << path3[0].y << " " << path3.size() << "\n";
 
     //To do: write code changeRealPath
     generator.changeRealPath(path, robot_path);
-    std::cout << robot_path[0].x << " " << robot_path[0].y << " " << path_size1 << "\n";
-    std::cout << robot_path[path_size1].x << " " << robot_path[path_size1].y << " " << path_size2 << "\n";
-    std::cout << robot_path[path_size1 + path_size2].x << " " << robot_path[path_size1 + path_size2].y << " " << robot_path.size() << "\n";
+    std::cout << "task1: " << robot_path[0].x << " " << robot_path[0].y << " " << path_size1 << "\n";
+    std::cout << "task2: " << robot_path[path_size1].x << " " << robot_path[path_size1].y << " " << path_size2 << "\n";
+    std::cout << "task3: " << robot_path[path_size1 + path_size2].x << " " << robot_path[path_size1 + path_size2].y << " " << path_size3 << "\n";
+    std::cout << "task end: " << robot_path[path_size1 + path_size2 + path_size3 - 1].x << " " << robot_path[path_size1 + path_size2 + path_size3 - 1].y << " " << "\n";
 
 }
